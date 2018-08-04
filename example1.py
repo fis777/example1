@@ -28,5 +28,5 @@ def live_search(request, template_name="shop/livesearch_results.html"):
     try:
         json = serializers.serialize("json", list(qs))
     except Exception:
-        return serializers.serialize("jsom", [])
+        return serializers.serialize("json", [])
     return json
