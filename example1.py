@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Q
-from django.comre import serializers
 
 
 class Product(models.Model):
@@ -23,10 +22,24 @@ class Product(models.Model):
 
 
 def live_search(request, template_name="shop/livesearch_results.html"):
+    from django.core import serializers
+    from django.http import HttpResponse
+
     q = request.GET.get("q", "")
     qs = Product.objects.filter(Q(sku__icontains=q) | Q(name__icontains=q) | Q(description__icontains=q)).all()
+
     try:
         json = serializers.serialize("json", list(qs))
     except Exception:
-        return serializers.serialize("json", [])
-    return json
+        json = serializers.serialize("json", [])
+        return HttpResponse(json, content_type='application/json')
+
+
+# или
+
+def live_search(request, template_name="shop/livesearch_results.html"):
+    from django.http import JsonResponse
+
+    q = request.GET.get("q", "")
+    qs = Product.objects.filter(Q(sku__icontains=q) | Q(name__icontains=q) | Q(description__icontains=q)).all()
+    return JsonResponse(qs, safe=False)
